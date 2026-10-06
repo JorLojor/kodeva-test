@@ -1,0 +1,4 @@
+{
+  "extends": "@jortemplate/typescript-config/react.json",
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

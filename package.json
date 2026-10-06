@@ -1,0 +1,23 @@
+{
+  "name": "jortemplate",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "packageManager": "bun@1.2.13",
+  "scripts": {
+    "dev": "bun run --filter @jortemplate/api --filter '@jortemplate/web' --filter '@jortemplate/dashboard' dev",
+    "dev:api": "bun run --cwd apps/api dev",
+    "dev:web": "bun run --cwd apps/web dev",
+    "dev:dashboard": "bun run --cwd apps/dashboard dev",
+    "build": "bun run --filter '@jortemplate/web' --filter '@jortemplate/dashboard' build",
+    "typecheck": "bun run --filter @jortemplate/api --filter '@jortemplate/web' --filter '@jortemplate/dashboard' --filter '@jortemplate/utils' --filter '@jortemplate/ui' typecheck",
+    "check:api": "bun run --cwd apps/api ci"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}

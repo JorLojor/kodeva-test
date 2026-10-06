@@ -1,0 +1,161 @@
+:root {
+  color-scheme: light;
+  --ink: #183b32;
+  --muted: #65746e;
+  --accent: #27745a;
+  --line: #dde5df;
+  --paper: #f7f9f5;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: Arial, Helvetica, sans-serif;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+a:focus-visible {
+  outline: 3px solid #a9cba8;
+  outline-offset: 5px;
+}
+.site-header,
+.site-footer,
+main {
+  width: min(1120px, calc(100% - 48px));
+  margin-inline: auto;
+}
+.site-header {
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+}
+.brand span {
+  color: var(--accent);
+}
+nav {
+  display: flex;
+  gap: 28px;
+  font-size: 14px;
+}
+nav a:hover {
+  color: var(--accent);
+}
+main {
+  min-height: calc(100vh - 178px);
+}
+.hero {
+  padding-block: 110px;
+  max-width: 760px;
+}
+.eyebrow {
+  margin: 0 0 26px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+h1 {
+  font-size: clamp(40px, 7vw, 78px);
+  line-height: 1.08;
+  letter-spacing: -3px;
+  margin: 0 0 28px;
+  font-weight: 600;
+}
+h1 span {
+  color: var(--accent);
+}
+.intro {
+  max-width: 490px;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.7;
+}
+.hero-note {
+  margin-top: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.site-footer {
+  min-height: 82px;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+}
+.marketplace {
+  padding-block: 64px;
+}
+.marketplace h1 {
+  font-size: clamp(36px, 5vw, 56px);
+  letter-spacing: -2px;
+}
+.empty-state {
+  text-align: center;
+  margin-top: 48px;
+  padding: 64px 24px;
+  border: 1px dashed #c3d1c6;
+  border-radius: 16px;
+  background: #fff;
+}
+.empty-icon {
+  color: var(--accent);
+  font-size: 48px;
+}
+.empty-state h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+.empty-state p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+@media (max-width: 600px) {
+  .site-header,
+  .site-footer,
+  main {
+    width: calc(100% - 40px);
+  }
+  .site-header {
+    min-height: 80px;
+    flex-wrap: wrap;
+    padding-block: 16px;
+    gap: 16px;
+  }
+  nav {
+    gap: 16px;
+    font-size: 13px;
+  }
+  .hero {
+    padding-block: 80px;
+  }
+  h1 {
+    letter-spacing: -2px;
+  }
+}
+
+.error-retry {
+  margin-top: 24px;
+}

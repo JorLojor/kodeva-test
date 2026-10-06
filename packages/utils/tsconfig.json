@@ -1,0 +1,11 @@
+{
+  "extends": "@jortemplate/typescript-config/base.json",
+  "compilerOptions": {
+    "types": [
+      "bun"
+    ]
+  },
+  "include": [
+    "logger/**/*.ts"
+  ]
+}
