@@ -6,6 +6,7 @@
     ]
   },
   "include": [
-    "logger/**/*.ts"
+    "logger/**/*.ts",
+    "marketplace/**/*.ts"
   ]
 }

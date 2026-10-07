@@ -20,9 +20,15 @@ app.use(
 	"*",
 	cors({
 		origin: allowedOrigins,
-		allowHeaders: ["Content-Type"],
+		allowHeaders: ["Content-Type", "Authorization"],
 		allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-		exposeHeaders: ["Content-Length", "X-Request-Id"],
+		exposeHeaders: [
+			"Content-Length",
+			"X-Request-Id",
+			"Retry-After",
+			"X-RateLimit-Limit",
+			"X-RateLimit-Remaining",
+		],
 		maxAge: 600,
 		credentials: true,
 	}),

@@ -1,5 +1,8 @@
+import { relations } from "drizzle-orm";
 import { pgEnum, pgTable, text, uniqueIndex } from "drizzle-orm/pg-core";
 import { identifiers, timestamps } from "@/db/utils/common-table";
+import { blog } from "./blog";
+import { contentChangesLog } from "./content-change-log";
 
 export const userRole = pgEnum("user_role", ["admin", "user"]);
 
@@ -20,6 +23,11 @@ export const user = pgTable(
 		};
 	},
 );
+
+export const userRelations = relations(user, ({ many }) => ({
+	contentChangesLogs: many(contentChangesLog),
+	blogs: many(blog),
+}));
 
 export const publicUserFields = {
 	publicId: user.publicId,

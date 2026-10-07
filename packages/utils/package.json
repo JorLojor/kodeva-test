@@ -13,7 +13,8 @@
       "types": "./logger/index.ts",
       "browser": "./logger/browser.ts",
       "default": "./logger/index.ts"
-    }
+    },
+    "./marketplace": "./marketplace/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
