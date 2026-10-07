@@ -12,7 +12,8 @@ Tanggal penyusunan: 6–7 Oktober 2026.
 | 6 Oktober 2026 | 21.22 – 22.06 | 44 menit |
 | 7 Oktober 2026 | 06.30 – 08.05 | 1 jam 35 menit |
 | 7 Oktober 2026 | 17.21 – 21.30 | 4 jam 9 menit |
-| **Total** | | **6 jam 28 menit** |
+| 7 Oktober 2026 | 21.30 – 23.15 | 1 jam 45 menit |
+| **Total** | | **8 jam 13 menit** |
 
 ## Workspace
 
