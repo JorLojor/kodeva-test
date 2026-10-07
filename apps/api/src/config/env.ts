@@ -26,6 +26,7 @@ const envSchema = z.object({
 	CDN_BUCKET: z.string().min(1, "cdn bucket not set"),
 	CDN_ENDPOINT: z.string().min(1, "cdn endpoint not set"),
 	CDN_PUBLIC_URL: z.string().min(1, "cdn public url not set"),
+	TRUSTED_IP_HEADER: z.string().min(1).optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

@@ -1,0 +1,378 @@
+# Platform Kodeva — namespace "kodeva".
+# Domain: dicobainaja.com (+www) -> web, dashboard.dicobainaja.com -> dashboard, api.dicobainaja.com -> api.
+# Secret yang harus dibuat manual sebelum apply: ghcr-cred, kodeva-tls, kodeva-postgres-secret, kodeva-api-secret.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kodeva
+---
+# Redirect HTTP -> HTTPS. CRD Traefik, BUKAN anotasi nginx.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+  namespace: kodeva
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+# ───────────────────────────── Postgres ─────────────────────────────
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kodeva-postgres
+  namespace: kodeva
+spec:
+  serviceName: kodeva-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kodeva-postgres
+  template:
+    metadata:
+      labels:
+        app: kodeva-postgres
+    spec:
+      # hostpath ke-pin 1 node. Data BUKAN HA: node ini mati -> DB nyangkut.
+      nodeSelector:
+        kubernetes.io/hostname: zenx-jor
+      containers:
+        - name: postgres
+          image: postgres:17-alpine # samakan dengan Postgres lokal (17)
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: kodeva-postgres-secret
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: microk8s-hostpath # verifikasi: kubectl get storageclass
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kodeva-postgres
+  namespace: kodeva
+spec:
+  clusterIP: None
+  selector:
+    app: kodeva-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+# ─────────────────────────────── API ────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kodeva-api
+  namespace: kodeva
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kodeva-api
+  template:
+    metadata:
+      labels:
+        app: kodeva-api
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: kodeva-api
+      # Migration jalan sebelum container API menerima traffic. Kalau dua pod start
+      # bersamaan dan satu kalah balapan, init container-nya restart lalu lolos.
+      initContainers:
+        - name: migrate
+          image: ghcr.io/jorlojor/kodeva-api:latest # diganti CI ke tag :sha-<commit>
+          command: ["bun", "run", "src/db/migrate.ts"]
+          envFrom: &apiEnvFrom
+            - secretRef:
+                name: kodeva-api-secret
+          env: &apiEnv
+            - name: NODE_ENV
+              value: production
+            - name: HOST
+              value: 0.0.0.0
+            - name: PORT
+              value: "3000"
+            - name: LOG_LEVEL
+              value: info
+            - name: ORIGIN
+              value: https://dicobainaja.com,https://www.dicobainaja.com,https://dashboard.dicobainaja.com
+            - name: TRUSTED_IP_HEADER
+              value: cf-connecting-ip
+      containers:
+        - name: kodeva-api
+          image: ghcr.io/jorlojor/kodeva-api:latest # diganti CI ke tag :sha-<commit>
+          ports:
+            - containerPort: 3000
+          envFrom: *apiEnvFrom
+          env: *apiEnv
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health # route di apps/api/src/routes/v1/health.route.ts
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kodeva-api
+  namespace: kodeva
+spec:
+  selector:
+    app: kodeva-api
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kodeva-api
+  namespace: kodeva
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: kodeva-redirect-https@kubernetescrd
+spec:
+  ingressClassName: public
+  tls:
+    - hosts: [api.dicobainaja.com]
+      secretName: kodeva-tls
+  rules:
+    - host: api.dicobainaja.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kodeva-api
+                port:
+                  number: 3000
+---
+# ─────────────────────────────── Web ────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kodeva-web
+  namespace: kodeva
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kodeva-web
+  template:
+    metadata:
+      labels:
+        app: kodeva-web
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: kodeva-web
+      containers:
+        - name: kodeva-web
+          image: ghcr.io/jorlojor/kodeva-web:latest # diganti CI ke tag :sha-<commit>
+          ports:
+            - containerPort: 3000
+          env:
+            # Sudah di-inline saat build; diset lagi agar server-side membaca nilai yang sama.
+            - name: NEXT_PUBLIC_API_URL
+              value: https://api.dicobainaja.com
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /products # halaman statis-ish; "/" bergantung API (CMS)
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kodeva-web
+  namespace: kodeva
+spec:
+  selector:
+    app: kodeva-web
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kodeva-web
+  namespace: kodeva
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: kodeva-redirect-https@kubernetescrd
+spec:
+  ingressClassName: public
+  tls:
+    - hosts: [dicobainaja.com, www.dicobainaja.com]
+      secretName: kodeva-tls
+  rules:
+    - host: dicobainaja.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kodeva-web
+                port:
+                  number: 3000
+    - host: www.dicobainaja.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kodeva-web
+                port:
+                  number: 3000
+---
+# ──────────────────────────── Dashboard ─────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kodeva-dashboard
+  namespace: kodeva
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kodeva-dashboard
+  template:
+    metadata:
+      labels:
+        app: kodeva-dashboard
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: kodeva-dashboard
+      containers:
+        - name: kodeva-dashboard
+          image: ghcr.io/jorlojor/kodeva-dashboard:latest # diganti CI ke tag :sha-<commit>
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz # apps/dashboard/nginx.conf
+              port: 3000
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kodeva-dashboard
+  namespace: kodeva
+spec:
+  selector:
+    app: kodeva-dashboard
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kodeva-dashboard
+  namespace: kodeva
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: kodeva-redirect-https@kubernetescrd
+spec:
+  ingressClassName: public
+  tls:
+    - hosts: [dashboard.dicobainaja.com]
+      secretName: kodeva-tls
+  rules:
+    - host: dashboard.dicobainaja.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kodeva-dashboard
+                port:
+                  number: 3000

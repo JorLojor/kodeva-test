@@ -7,7 +7,11 @@ export async function bootstrap() {
 		hostname: env.HOST,
 		port: env.PORT,
 		fetch: (request, server) =>
-			app.fetch(request, { clientIp: server.requestIP(request)?.address ?? null }),
+			app.fetch(request, {
+				clientIp:
+					(env.TRUSTED_IP_HEADER && request.headers.get(env.TRUSTED_IP_HEADER)?.trim()) ||
+					(server.requestIP(request)?.address ?? null),
+			}),
 	});
 
 	logger.info(

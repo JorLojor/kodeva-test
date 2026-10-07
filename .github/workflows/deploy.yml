@@ -1,0 +1,132 @@
+name: Build & Deploy kodeva
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "package.json"
+      - "bun.lock"
+      - ".dockerignore"
+      - "k8s/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io/jorlojor 
+  API_URL: https://api.dicobainaja.com
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      web: ${{ steps.filter.outputs.web }}
+      dashboard: ${{ steps.filter.outputs.dashboard }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            shared: &shared
+              - 'packages/**'
+              - 'package.json'
+              - 'bun.lock'
+              - '.dockerignore'
+              - 'k8s/**'
+              - '.github/workflows/deploy.yml'
+            api:
+              - *shared
+              - 'apps/api/**'
+            web:
+              - *shared
+              - 'apps/web/**'
+            dashboard:
+              - *shared
+              - 'apps/dashboard/**'
+
+  build:
+    needs: changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [api, web, dashboard]
+    steps:
+      - name: Lewati jika app tidak berubah
+        id: gate
+        run: |
+          case "${{ matrix.app }}" in
+            api) changed="${{ needs.changes.outputs.api }}" ;;
+            web) changed="${{ needs.changes.outputs.web }}" ;;
+            dashboard) changed="${{ needs.changes.outputs.dashboard }}" ;;
+          esac
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then changed=true; fi
+          echo "run=$changed" >> "$GITHUB_OUTPUT"
+      - if: steps.gate.outputs.run == 'true'
+        uses: actions/checkout@v4
+      - if: steps.gate.outputs.run == 'true'
+        uses: docker/setup-buildx-action@v3
+      - if: steps.gate.outputs.run == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - if: steps.gate.outputs.run == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: . 
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: true
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ env.API_URL }}
+            VITE_API_URL=${{ env.API_URL }}
+          tags: |
+            ${{ env.REGISTRY }}/kodeva-${{ matrix.app }}:sha-${{ github.sha }}
+            ${{ env.REGISTRY }}/kodeva-${{ matrix.app }}:latest
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
+
+  deploy:
+    needs: [changes, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v4
+      - name: Konfigurasi akses cluster
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+      - name: Deploy
+        run: |
+          set -euo pipefail
+          tag="sha-${{ github.sha }}"
+          all="${{ github.event_name == 'workflow_dispatch' }}"
+          changed() { [ "$all" = "true" ] || [ "$1" = "true" ]; }
+
+          # Simpan image yang sedang jalan supaya apply (yang berisi :latest) tidak
+          # me-restart app yang tidak berubah.
+          current() { kubectl -n kodeva get deployment "$1" -o jsonpath="{.spec.template.spec.containers[0].image}" 2>/dev/null || true; }
+          api_img=$(current kodeva-api); web_img=$(current kodeva-web); dash_img=$(current kodeva-dashboard)
+
+          kubectl apply -f k8s/kodeva.yaml
+
+          changed "${{ needs.changes.outputs.api }}" && api_img="$REGISTRY/kodeva-api:$tag"
+          changed "${{ needs.changes.outputs.web }}" && web_img="$REGISTRY/kodeva-web:$tag"
+          changed "${{ needs.changes.outputs.dashboard }}" && dash_img="$REGISTRY/kodeva-dashboard:$tag"
+
+          [ -n "$api_img" ] && kubectl -n kodeva set image deployment/kodeva-api migrate="$api_img" kodeva-api="$api_img"
+          [ -n "$web_img" ] && kubectl -n kodeva set image deployment/kodeva-web kodeva-web="$web_img"
+          [ -n "$dash_img" ] && kubectl -n kodeva set image deployment/kodeva-dashboard kodeva-dashboard="$dash_img"
+
+          # 300s: pull image pertama ke tiap node bisa lama.
+          for d in kodeva-api kodeva-web kodeva-dashboard; do
+            kubectl -n kodeva rollout status deployment/$d --timeout=300s
+          done

@@ -1,0 +1,24 @@
+# dependencies — install di dalam container; node_modules host berisi binary darwin-arm64.
+node_modules
+**/node_modules
+
+# build output
+**/.next
+**/dist
+**/out
+**/*.tsbuildinfo
+**/next-env.d.ts
+
+# vcs, editor, ci
+.git
+.github
+.claude
+**/.DS_Store
+k8s
+docs-kodeva
+
+# env & secrets
+**/.env
+**/.env.*
+!**/.env.example
+**/*.pem
