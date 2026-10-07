@@ -153,3 +153,7 @@ Docker belum disesuaikan untuk shared workspace.
 - Infrastruktur: [storage R2](storage.md), [upload gambar](uploads.md).
 - Shared package: [UI](shared_ui.md), [utils/logger](shared_utils.md).
 - [Spesifikasi teknis](important/SPEC.md) dan [catatan penggunaan AI](important/AI_LOGS.md).
+
+
+- **Pertanyaan:** hendrawan.putra@dsg.id
+- **Kirim ke:** recruitment@dsg.id (cc: hendrawan.putra@dsg.id, rochman.maarif@dsg.id)
