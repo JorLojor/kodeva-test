@@ -2,27 +2,30 @@ import "dotenv/config";
 import { z } from "zod";
 
 const envSchema = z.object({
-	NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-	DATABASE_URL: z.string().url().min(1),
-	HOST: z.string().min(1).default("0.0.0.0"),
-	PORT: z.coerce.number().int().positive().max(65_535).default(8080),
-	ORIGIN: z
-		.string()
-		.default("http://localhost:5678")
-		.refine(
-			(value) =>
-				value.split(",").every((entry) => {
-					try {
-						const origin = entry.trim();
-						const url = new URL(origin);
-						return ["http:", "https:"].includes(url.protocol) && url.origin === origin;
-					} catch {
-						return false;
-					}
-				}),
-			"ORIGIN must contain explicit HTTP(S) origins separated by commas; wildcards are not allowed",
-		),
-	LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
+	NODE_ENV: z.enum(["development", "test", "production"]),
+	DATABASE_URL: z.string().url().min(1, "database url not set"),
+	HOST: z.string().min(1),
+	PORT: z.coerce.number().int().positive().max(65_535),
+	ORIGIN: z.string().refine(
+		(value) =>
+			value.split(",").every((entry) => {
+				try {
+					const origin = entry.trim();
+					const url = new URL(origin);
+					return ["http:", "https:"].includes(url.protocol) && url.origin === origin;
+				} catch {
+					return false;
+				}
+			}),
+		"ORIGIN must contain explicit HTTP(S) origins separated by commas; wildcards are not allowed",
+	),
+	LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]),
+	CDN_REGION: z.string().min(1, "cdn region not set"),
+	CDN_ACCESS_KEY_ID: z.string().min(1, "cdn access key id not set"),
+	CDN_SECRET: z.string().min(1, "cdn secret not set"),
+	CDN_BUCKET: z.string().min(1, "cdn bucket not set"),
+	CDN_ENDPOINT: z.string().min(1, "cdn endpoint not set"),
+	CDN_PUBLIC_URL: z.string().min(1, "cdn public url not set"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

@@ -6,7 +6,8 @@ export async function bootstrap() {
 	const server = Bun.serve({
 		hostname: env.HOST,
 		port: env.PORT,
-		fetch: app.fetch,
+		fetch: (request, server) =>
+			app.fetch(request, { clientIp: server.requestIP(request)?.address ?? null }),
 	});
 
 	logger.info(

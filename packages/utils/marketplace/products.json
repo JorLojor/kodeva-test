@@ -1,0 +1,316 @@
+[
+	{
+		"id": "kasir",
+		"slug": "kasir",
+		"name": "Kodeva Kasir",
+		"category": "Operasional",
+		"unit": "outlet",
+		"description": "Kelola transaksi dan pantau penjualan setiap outlet.",
+		"features": ["Transaksi kasir", "Laporan penjualan", "Manajemen produk"],
+		"quota": 5,
+		"screenshots": [
+			"/marketplace/kasir-overview.svg",
+			"/marketplace/kasir-report.svg"
+		],
+		"packages": [
+			{
+				"id": "basic",
+				"name": "Basic",
+				"price": 100000,
+				"promoPrice": 80000,
+				"features": ["Transaksi kasir", "Laporan penjualan", "Manajemen produk"]
+			},
+			{
+				"id": "pro",
+				"name": "Pro",
+				"price": 200000,
+				"promoPrice": 160000,
+				"features": [
+					"Transaksi kasir",
+					"Laporan penjualan",
+					"Manajemen produk",
+					"Ekspor laporan",
+					"Pengaturan lanjutan"
+				]
+			},
+			{
+				"id": "business",
+				"name": "Business",
+				"price": 300000,
+				"promoPrice": 240000,
+				"features": [
+					"Transaksi kasir",
+					"Laporan penjualan",
+					"Manajemen produk",
+					"Ekspor laporan",
+					"Pengaturan lanjutan",
+					"Kontrol akses tim",
+					"Dukungan prioritas"
+				]
+			}
+		]
+	},
+	{
+		"id": "inventori",
+		"slug": "inventori",
+		"name": "Kodeva Inventori",
+		"category": "Operasional",
+		"unit": "outlet",
+		"description": "Catat persediaan dan pergerakan barang dalam satu tempat.",
+		"features": ["Kartu stok", "Mutasi barang", "Peringatan stok"],
+		"quota": 6,
+		"screenshots": [
+			"/marketplace/inventori-overview.svg",
+			"/marketplace/inventori-report.svg"
+		],
+		"packages": [
+			{
+				"id": "basic",
+				"name": "Basic",
+				"price": 125000,
+				"promoPrice": 100000,
+				"features": ["Kartu stok", "Mutasi barang", "Peringatan stok"]
+			},
+			{
+				"id": "pro",
+				"name": "Pro",
+				"price": 250000,
+				"promoPrice": 200000,
+				"features": [
+					"Kartu stok",
+					"Mutasi barang",
+					"Peringatan stok",
+					"Ekspor laporan",
+					"Pengaturan lanjutan"
+				]
+			},
+			{
+				"id": "business",
+				"name": "Business",
+				"price": 375000,
+				"promoPrice": 300000,
+				"features": [
+					"Kartu stok",
+					"Mutasi barang",
+					"Peringatan stok",
+					"Ekspor laporan",
+					"Pengaturan lanjutan",
+					"Kontrol akses tim",
+					"Dukungan prioritas"
+				]
+			}
+		]
+	},
+	{
+		"id": "crm",
+		"slug": "crm",
+		"name": "Kodeva CRM",
+		"category": "Penjualan",
+		"unit": "user",
+		"description": "Rapikan prospek dan tindak lanjut pelanggan bersama tim.",
+		"features": [
+			"Pipeline prospek",
+			"Catatan pelanggan",
+			"Pengingat follow-up"
+		],
+		"quota": 7,
+		"screenshots": [
+			"/marketplace/crm-overview.svg",
+			"/marketplace/crm-report.svg"
+		],
+		"packages": [
+			{
+				"id": "basic",
+				"name": "Basic",
+				"price": 150000,
+				"promoPrice": 120000,
+				"features": [
+					"Pipeline prospek",
+					"Catatan pelanggan",
+					"Pengingat follow-up"
+				]
+			},
+			{
+				"id": "pro",
+				"name": "Pro",
+				"price": 300000,
+				"promoPrice": 240000,
+				"features": [
+					"Pipeline prospek",
+					"Catatan pelanggan",
+					"Pengingat follow-up",
+					"Ekspor laporan",
+					"Pengaturan lanjutan"
+				]
+			},
+			{
+				"id": "business",
+				"name": "Business",
+				"price": 450000,
+				"promoPrice": 360000,
+				"features": [
+					"Pipeline prospek",
+					"Catatan pelanggan",
+					"Pengingat follow-up",
+					"Ekspor laporan",
+					"Pengaturan lanjutan",
+					"Kontrol akses tim",
+					"Dukungan prioritas"
+				]
+			}
+		]
+	},
+	{
+		"id": "invoice",
+		"slug": "invoice",
+		"name": "Kodeva Invoice",
+		"category": "Keuangan",
+		"unit": "user",
+		"description": "Buat tagihan dan pantau pembayaran dengan lebih teratur.",
+		"features": ["Template invoice", "Status pembayaran", "Rekap tagihan"],
+		"quota": 8,
+		"screenshots": [
+			"/marketplace/invoice-overview.svg",
+			"/marketplace/invoice-report.svg"
+		],
+		"packages": [
+			{
+				"id": "basic",
+				"name": "Basic",
+				"price": 175000,
+				"promoPrice": 140000,
+				"features": ["Template invoice", "Status pembayaran", "Rekap tagihan"]
+			},
+			{
+				"id": "pro",
+				"name": "Pro",
+				"price": 350000,
+				"promoPrice": 280000,
+				"features": [
+					"Template invoice",
+					"Status pembayaran",
+					"Rekap tagihan",
+					"Ekspor laporan",
+					"Pengaturan lanjutan"
+				]
+			},
+			{
+				"id": "business",
+				"name": "Business",
+				"price": 525000,
+				"promoPrice": 420000,
+				"features": [
+					"Template invoice",
+					"Status pembayaran",
+					"Rekap tagihan",
+					"Ekspor laporan",
+					"Pengaturan lanjutan",
+					"Kontrol akses tim",
+					"Dukungan prioritas"
+				]
+			}
+		]
+	},
+	{
+		"id": "booking",
+		"slug": "booking",
+		"name": "Kodeva Booking",
+		"category": "Penjualan",
+		"unit": "outlet",
+		"description": "Atur jadwal layanan dan reservasi pelanggan.",
+		"features": ["Kalender reservasi", "Daftar layanan", "Pengingat jadwal"],
+		"quota": 9,
+		"screenshots": [
+			"/marketplace/booking-overview.svg",
+			"/marketplace/booking-report.svg"
+		],
+		"packages": [
+			{
+				"id": "basic",
+				"name": "Basic",
+				"price": 200000,
+				"promoPrice": 160000,
+				"features": ["Kalender reservasi", "Daftar layanan", "Pengingat jadwal"]
+			},
+			{
+				"id": "pro",
+				"name": "Pro",
+				"price": 400000,
+				"promoPrice": 320000,
+				"features": [
+					"Kalender reservasi",
+					"Daftar layanan",
+					"Pengingat jadwal",
+					"Ekspor laporan",
+					"Pengaturan lanjutan"
+				]
+			},
+			{
+				"id": "business",
+				"name": "Business",
+				"price": 600000,
+				"promoPrice": 480000,
+				"features": [
+					"Kalender reservasi",
+					"Daftar layanan",
+					"Pengingat jadwal",
+					"Ekspor laporan",
+					"Pengaturan lanjutan",
+					"Kontrol akses tim",
+					"Dukungan prioritas"
+				]
+			}
+		]
+	},
+	{
+		"id": "team",
+		"slug": "team",
+		"name": "Kodeva Team",
+		"category": "Produktivitas",
+		"unit": "user",
+		"description": "Kelola tugas dan koordinasikan pekerjaan tim.",
+		"features": ["Papan tugas", "Komentar tim", "Ringkasan progres"],
+		"quota": 10,
+		"screenshots": [
+			"/marketplace/team-overview.svg",
+			"/marketplace/team-report.svg"
+		],
+		"packages": [
+			{
+				"id": "basic",
+				"name": "Basic",
+				"price": 225000,
+				"promoPrice": 180000,
+				"features": ["Papan tugas", "Komentar tim", "Ringkasan progres"]
+			},
+			{
+				"id": "pro",
+				"name": "Pro",
+				"price": 450000,
+				"promoPrice": 360000,
+				"features": [
+					"Papan tugas",
+					"Komentar tim",
+					"Ringkasan progres",
+					"Ekspor laporan",
+					"Pengaturan lanjutan"
+				]
+			},
+			{
+				"id": "business",
+				"name": "Business",
+				"price": 675000,
+				"promoPrice": 540000,
+				"features": [
+					"Papan tugas",
+					"Komentar tim",
+					"Ringkasan progres",
+					"Ekspor laporan",
+					"Pengaturan lanjutan",
+					"Kontrol akses tim",
+					"Dukungan prioritas"
+				]
+			}
+		]
+	}
+]

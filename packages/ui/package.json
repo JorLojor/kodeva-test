@@ -14,7 +14,11 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
+    "tailwindcss": "^4.0.0",
     "react": "^19.2.0"
+  },
+  "dependencies": {
+    "tailwind-merge": "^3.0.0"
   },
   "devDependencies": {
     "@jortemplate/typescript-config": "workspace:*",

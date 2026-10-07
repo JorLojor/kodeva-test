@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@jortemplate/types": "workspace:*",
     "@tanstack/react-query": "^5.90.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -18,6 +19,8 @@
     "@jortemplate/ui": "workspace:*"
   },
   "devDependencies": {
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0",
     "@jortemplate/typescript-config": "workspace:*",
     "@types/node": "^22",
     "@types/react": "^19",
